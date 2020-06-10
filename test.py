@@ -1,11 +1,14 @@
 from strlearn.ensembles import OOB, UOB, SEA, OnlineBagging
 from sklearn.naive_bayes import GaussianNB
+
 from sklearn.base import clone
 from sklearn.metrics import accuracy_score
-from scipy.stats import rankdata
-
 from sklearn.model_selection import RepeatedStratifiedKFold
 import numpy as np
+
+from scipy.stats import rankdata
+from scipy.stats import ranksums
+
 
 #classificators
 clfs = {   
@@ -43,3 +46,23 @@ for data_id, dataset in enumerate(datasets):
 np.save('results', scores)
 
 
+### DATA ANALYSIS ###
+
+#reading_result_from_file 
+scores = np.load('results.npy')
+print("\nScores:\n", scores.shape)
+
+#mean scores 
+mean_scores = np.mean(scores, axis=2).T
+print("\nMean scores:\n", mean_scores)
+
+#ranks
+ranks = []
+for ms in mean_scores:
+    ranks.append(rankdata(ms).tolist())
+ranks = np.array(ranks)
+print("\nRanks:\n", ranks)
+
+#mean ranks
+mean_ranks = np.mean(ranks, axis=0)
+print("\nMean ranks:\n", mean_ranks)
