@@ -10,5 +10,5 @@
 <ul><h2>Authors:</h2> 
   <li>Jasianek Magdalena (241984),</li> 
   <li>Konrad Prusak (242038),</li>
-  <li>Swoboda Bartłomiej.</li>
+  <li>Swoboda Bartłomiej (241990).</li>
 </ul>
