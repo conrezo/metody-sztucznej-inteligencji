@@ -58,7 +58,7 @@ clfs = {
 
 
 
-#chosen metrics
+#metrics
 metrics = [sl.metrics.f1_score,
            sl.metrics.geometric_mean_score_1]
 
@@ -75,9 +75,9 @@ evaluator_gradual = sl.evaluators.TestThenTrain(metrics)
 evaluator_incremental = sl.evaluators.TestThenTrain(metrics)
 
 #evaluator run
-evaluator_sudden.process(stream_sudden, clfs.get('UOB'))
-evaluator_gradual.process(stream_gradual, clfs.get('UOB'))
-evaluator_incremental.process(stream_incremental, clfs.get('UOB')) 
+evaluator_sudden.process(stream_sudden, clfs.values())
+evaluator_gradual.process(stream_gradual, clfs.values())
+evaluator_incremental.process(stream_incremental, clfs.values()) 
 
 """
 for i in clfs.values(): 
@@ -122,29 +122,35 @@ print("\nScores (incremental):\n", scores_incremental.shape)
 
 
 #mean scores 
-mean_scores_sudden = np.mean(scores_sudden, axis=2).T
+mean_scores_sudden = np.mean(scores_sudden, axis=1) # jak dobrać axis?
 print("\nMean scores (sudden):\n", mean_scores_sudden)
 
-mean_scores_gradual = np.mean(scores_gradual, axis=2).T
+mean_scores_gradual = np.mean(scores_gradual, axis=1)
 print("\nMean scores (gradual):\n", mean_scores_gradual)
 
-mean_scores_incremental = np.mean(scores_incremental, axis=2).T
+mean_scores_incremental = np.mean(scores_incremental, axis=1)
 print("\nMean scores (incremental):\n", mean_scores_incremental)
 
-#std
-std_scores_sudden = np.std(scores_sudden, axis=2).T
+
+#std scores
+std_scores_sudden = np.std(scores_sudden, axis=1)
 print("\nStd scores (sudden):\n", std_scores_sudden)
 
-std_scores_gradual = np.std(scores_gradual, axis=2).T
+std_scores_gradual = np.std(scores_gradual, axis=1)
 print("\nStd scores (gradual):\n", std_scores_gradual)
 
-std_scores_incremental = np.std(scores_incremental, axis=2).T
+std_scores_incremental = np.std(scores_incremental, axis=1)
 print("\nStd scores (incremental):\n", std_scores_incremental)
+
+
+####################################################################
 
 
 def show_results(mean, std): 
     for clf_id, clf_name in enumerate(clfs):
-        print("%s: %.3f (%.2f)" % (clf_name, mean[clf_id], std[clf_id]))
+        print("\n"
+            #"%s: %.3f (%.2f)" % 
+            (clf_name, mean[clf_id], std[clf_id])) #jak dopasować 
 
 show_results(mean_scores_sudden, std_scores_sudden)
 
