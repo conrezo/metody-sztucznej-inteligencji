@@ -103,7 +103,7 @@ class UOB(BaseEnsemble, ClassifierMixin):
                     [np.random.poisson(lmbda, 1)[0]
                      for i in range(self.n_estimators)]
                 )
-            else: #jezeli lambda rowna jeden
+            else: # w innych label niz 0 i 1 lamba=1 
                 lmbda = 1
                 K = np.asarray(
                     [np.random.poisson(lmbda, 1)[0]
