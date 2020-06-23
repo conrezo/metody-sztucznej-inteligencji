@@ -71,7 +71,7 @@ evaluator_sudden = sl.evaluators.TestThenTrain(metrics)
 evaluator_gradual = sl.evaluators.TestThenTrain(metrics)
 evaluator_incremental = sl.evaluators.TestThenTrain(metrics)
 
-""" próba rodzielenia na różne algorytmy
+""" próba podziału - ślepa uliczka
 evaluator_sudden_UOB = sl.evaluators.TestThenTrain(metrics)
 evaluator_sudden_OOB = sl.evaluators.TestThenTrain(metrics)
 evaluator_sudden_OB = sl.evaluators.TestThenTrain(metrics)
@@ -139,13 +139,13 @@ save_to_file(evaluator_incremental, "incremental")
 
 #reading_result_from_file 
 scores_sudden = np.load('results_sudden.npy')
-print("\nScores (sudden):\n", scores_sudden.shape)
+print("\nScores (sudden):\n", scores_sudden)
 
 scores_gradual = np.load('results_gradual.npy')
-print("\nScores (gradual):\n", scores_gradual.shape)
+print("\nScores (gradual):\n", scores_gradual)
 
 scores_incremental = np.load('results_incremental.npy')
-print("\nScores (incremental):\n", scores_incremental.shape)
+print("\nScores (incremental):\n", scores_incremental)
 
 
 #mean scores 
@@ -174,7 +174,7 @@ print("\nStd scores (incremental):\n", std_scores_incremental)
 
 def show_results(mean, std): 
     for clf_id, clf_name in enumerate(clfs):
-        print("%s: %.3f (%.2f)" % (clf_name, mean, std)) #jak dopasować 
+        print("%s: %.3f (%.2f)" % (clf_name, mean, std)) #według przykładu - (clf_name, mean[clf_id], std[clf_id]), wtedy błąd indeksu
 
 print("sudden")
 show_results(mean_scores_sudden, std_scores_sudden)
