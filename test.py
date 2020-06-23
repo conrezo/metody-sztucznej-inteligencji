@@ -1,5 +1,5 @@
-from scipy.stats import rankdata
-from scipy.stats import ranksums
+#from scipy.stats import rankdata
+#from scipy.stats import ranksums
 from sklearn.base import clone
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import RepeatedStratifiedKFold
@@ -68,18 +68,58 @@ metrics_names = ["F1 score",
 
 
 
+#czy powinniśmy to przepuścić przez wszystkie metryki i wszystkie clfs? mnóstwo przypadków
+
+
 
 #evaluator initialization
+
 evaluator_sudden = sl.evaluators.TestThenTrain(metrics)
 evaluator_gradual = sl.evaluators.TestThenTrain(metrics)
 evaluator_incremental = sl.evaluators.TestThenTrain(metrics)
 
+""" próba rodzielenia na różne algorytmy, być może przyda się jeszcze na różne metryki...
+
+evaluator_sudden_UOB = sl.evaluators.TestThenTrain(metrics)
+evaluator_sudden_OOB = sl.evaluators.TestThenTrain(metrics)
+evaluator_sudden_OB = sl.evaluators.TestThenTrain(metrics)
+evaluator_sudden_SEA = sl.evaluators.TestThenTrain(metrics)
+
+evaluator_gradual_UOB = sl.evaluators.TestThenTrain(metrics)
+evaluator_gradual_OOB = sl.evaluators.TestThenTrain(metrics)
+evaluator_gradual_OB = sl.evaluators.TestThenTrain(metrics)
+evaluator_gradual_SEA = sl.evaluators.TestThenTrain(metrics)
+
+evaluator_incremental_UOB = sl.evaluators.TestThenTrain(metrics)
+evaluator_incremental_OOB = sl.evaluators.TestThenTrain(metrics)
+evaluator_incremental_OB = sl.evaluators.TestThenTrain(metrics)
+evaluator_incremental_SEA = sl.evaluators.TestThenTrain(metrics)
+"""
+
 #evaluator run
+
 evaluator_sudden.process(stream_sudden, clfs.values())
 evaluator_gradual.process(stream_gradual, clfs.values())
-evaluator_incremental.process(stream_incremental, clfs.values()) 
+evaluator_incremental.process(stream_incremental, clfs.values())
 
+""" zbędne
+evaluator_sudden_UOB.process(stream_sudden, clfs.get('UOB'))
+evaluator_sudden_OOB.process(stream_sudden, clfs.get('OOB'))
+evaluator_sudden_OB.process(stream_sudden, clfs.get('OB'))
+evaluator_sudden_SEA.process(stream_sudden, clfs.get('SEA'))
+
+evaluator_gradual_UOB.process(stream_gradual, clfs.get('UOB'))
+evaluator_gradual_OOB.process(stream_gradual, clfs.get('OOB'))
+evaluator_gradual_OB.process(stream_gradual, clfs.get('OB'))
+evaluator_gradual_SEA.process(stream_gradual, clfs.get('SEA'))
+
+evaluator_incremental_UOB.process(stream_incremental, clfs.get('UOB')) 
+evaluator_incremental_OOB.process(stream_incremental, clfs.get('OOB')) 
+evaluator_incremental_OB.process(stream_incremental, clfs.get('OB')) 
+evaluator_incremental_SEA.process(stream_incremental, clfs.get('SEA')) 
 """
+
+""" wersja fora do iteracji przez clfsy
 for i in clfs.values(): 
     evaluator_sudden.process(stream_sudden, i)
 
@@ -89,6 +129,7 @@ for i in clfs.values():
 for i in clfs.values(): 
     evaluator_incremental.process(stream_incremental, i)
 """
+
 
 #print scores results
 #print(evaluator_sudden.scores)
@@ -122,39 +163,41 @@ print("\nScores (incremental):\n", scores_incremental.shape)
 
 
 #mean scores 
-mean_scores_sudden = np.mean(scores_sudden, axis=1) # jak dobrać axis?
+mean_scores_sudden = np.mean(scores_sudden) # jak dobrać axis?
 print("\nMean scores (sudden):\n", mean_scores_sudden)
 
-mean_scores_gradual = np.mean(scores_gradual, axis=1)
+mean_scores_gradual = np.mean(scores_gradual)
 print("\nMean scores (gradual):\n", mean_scores_gradual)
 
-mean_scores_incremental = np.mean(scores_incremental, axis=1)
+mean_scores_incremental = np.mean(scores_incremental)
 print("\nMean scores (incremental):\n", mean_scores_incremental)
 
 
 #std scores
-std_scores_sudden = np.std(scores_sudden, axis=1)
+std_scores_sudden = np.std(scores_sudden)
 print("\nStd scores (sudden):\n", std_scores_sudden)
 
-std_scores_gradual = np.std(scores_gradual, axis=1)
+std_scores_gradual = np.std(scores_gradual)
 print("\nStd scores (gradual):\n", std_scores_gradual)
 
-std_scores_incremental = np.std(scores_incremental, axis=1)
+std_scores_incremental = np.std(scores_incremental)
 print("\nStd scores (incremental):\n", std_scores_incremental)
 
 
-####################################################################
-
+############## PRESENTING RESULTS ######################################################
 
 def show_results(mean, std): 
     for clf_id, clf_name in enumerate(clfs):
-        print("\n"
-            #"%s: %.3f (%.2f)" % 
-            (clf_name, mean[clf_id], std[clf_id])) #jak dopasować 
+        print("%s: %.3f (%.2f)" % (clf_name, mean, std)) #jak dopasować 
 
+print("sudden")
 show_results(mean_scores_sudden, std_scores_sudden)
+print("gradual")
+show_results(mean_scores_gradual, std_scores_gradual)
+print("incremental")
+show_results(mean_scores_incremental, std_scores_incremental)
 
-###############################################################################3
+########################################################################################
 
 
 
