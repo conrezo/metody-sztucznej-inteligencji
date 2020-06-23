@@ -46,7 +46,6 @@ stream_incremental = sl.streams.StreamGenerator(n_chunks=200,
 ######################################################################
 
 
-
 #classificators
 clfs = {   
     'UOB': UOB(base_estimator=GaussianNB(), n_estimators=5),
@@ -54,8 +53,6 @@ clfs = {
     'OB': OnlineBagging(base_estimator=GaussianNB(), n_estimators=5),
     'SEA': SEA(base_estimator=GaussianNB(), n_estimators=5)
 }
-
-
 
 
 #metrics
@@ -67,19 +64,14 @@ metrics_names = ["F1 score",
                  "G-mean"]
 
 
-
-#czy powinniśmy to przepuścić przez wszystkie metryki i wszystkie clfs? mnóstwo przypadków
-
-
-
 #evaluator initialization
+#czy powinniśmy to przepuścić przez wszystkie metryki i wszystkie clfs? mnóstwo przypadków
 
 evaluator_sudden = sl.evaluators.TestThenTrain(metrics)
 evaluator_gradual = sl.evaluators.TestThenTrain(metrics)
 evaluator_incremental = sl.evaluators.TestThenTrain(metrics)
 
-""" próba rodzielenia na różne algorytmy, być może przyda się jeszcze na różne metryki...
-
+""" próba rodzielenia na różne algorytmy
 evaluator_sudden_UOB = sl.evaluators.TestThenTrain(metrics)
 evaluator_sudden_OOB = sl.evaluators.TestThenTrain(metrics)
 evaluator_sudden_OB = sl.evaluators.TestThenTrain(metrics)
@@ -96,13 +88,13 @@ evaluator_incremental_OB = sl.evaluators.TestThenTrain(metrics)
 evaluator_incremental_SEA = sl.evaluators.TestThenTrain(metrics)
 """
 
-#evaluator run
+#evaluators run
 
 evaluator_sudden.process(stream_sudden, clfs.values())
 evaluator_gradual.process(stream_gradual, clfs.values())
 evaluator_incremental.process(stream_incremental, clfs.values())
 
-""" zbędne
+""" 
 evaluator_sudden_UOB.process(stream_sudden, clfs.get('UOB'))
 evaluator_sudden_OOB.process(stream_sudden, clfs.get('OOB'))
 evaluator_sudden_OB.process(stream_sudden, clfs.get('OB'))
@@ -119,7 +111,7 @@ evaluator_incremental_OB.process(stream_incremental, clfs.get('OB'))
 evaluator_incremental_SEA.process(stream_incremental, clfs.get('SEA')) 
 """
 
-""" wersja fora do iteracji przez clfsy
+""" 
 for i in clfs.values(): 
     evaluator_sudden.process(stream_sudden, i)
 
@@ -134,9 +126,6 @@ for i in clfs.values():
 #print scores results
 #print(evaluator_sudden.scores)
 
-
-
-
 #saving_results_to_file
 def save_to_file(evaluator, drift_name:str):
     np.save('results_' + drift_name, evaluator.scores)
@@ -144,9 +133,6 @@ def save_to_file(evaluator, drift_name:str):
 save_to_file(evaluator_sudden, "sudden")
 save_to_file(evaluator_gradual, "gradual")
 save_to_file(evaluator_incremental, "incremental")
-
-
-
 
 
 ############# DATA ANALYSIS ######################################
@@ -198,8 +184,6 @@ print("incremental")
 show_results(mean_scores_incremental, std_scores_incremental)
 
 ########################################################################################
-
-
 
 
 
