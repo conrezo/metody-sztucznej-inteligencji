@@ -63,7 +63,7 @@ evaluator_sudden = sl.evaluators.TestThenTrain(metrics)
 evaluator_gradual = sl.evaluators.TestThenTrain(metrics)
 evaluator_incremental = sl.evaluators.TestThenTrain(metrics)
 
-""" próba podziału - ślepa uliczka
+""" próba podziału - ślepa uliczka?
 evaluator_sudden_UOB = sl.evaluators.TestThenTrain(metrics)
 evaluator_sudden_OOB = sl.evaluators.TestThenTrain(metrics)
 evaluator_sudden_OB = sl.evaluators.TestThenTrain(metrics)
@@ -129,25 +129,25 @@ print("\nScores (incremental):\n", scores_incremental)
 
 
 #mean scores 
-mean_scores_sudden = np.mean(scores_sudden) # jak dobrać axis?
-print("\nMean scores (sudden):\n", mean_scores_sudden)
+mean_sudden = np.mean(scores_sudden) # jak dobrać axis?
+print("\n\nMean (sudden):\n", mean_sudden)
 
-mean_scores_gradual = np.mean(scores_gradual)
-print("\nMean scores (gradual):\n", mean_scores_gradual)
+mean_gradual = np.mean(scores_gradual)
+print("\nMean (gradual):\n", mean_gradual)
 
-mean_scores_incremental = np.mean(scores_incremental)
-print("\nMean scores (incremental):\n", mean_scores_incremental)
+mean_incremental = np.mean(scores_incremental)
+print("\nMean (incremental):\n", mean_incremental)
 
 
 #std scores
-std_scores_sudden = np.std(scores_sudden)
-print("\nStd scores (sudden):\n", std_scores_sudden)
+std_sudden = np.std(scores_sudden)
+print("\n\nStd (sudden):\n", std_sudden)
 
-std_scores_gradual = np.std(scores_gradual)
-print("\nStd scores (gradual):\n", std_scores_gradual)
+std_gradual = np.std(scores_gradual)
+print("\nStd (gradual):\n", std_gradual)
 
-std_scores_incremental = np.std(scores_incremental)
-print("\nStd scores (incremental):\n", std_scores_incremental)
+std_incremental = np.std(scores_incremental)
+print("\nStd (incremental):\n", std_incremental)
 
 
 
@@ -155,14 +155,16 @@ print("\nStd scores (incremental):\n", std_scores_incremental)
 
 def show_results(mean, std): 
     for clf_id, clf_name in enumerate(clfs):
-        print("%s: %.3f (%.2f)" % (clf_name, mean, std)) #według przykładu - (clf_name, mean[clf_id], std[clf_id]), wtedy błąd indeksu
+        #print(clf_id)
+        #print(clf_name)
+        print("%s: %.3f (%.2f)" % (clf_name, mean[clf_id], std)) #według przykładu - (clf_name, mean[clf_id], std[clf_id]), wtedy błąd indeksu
 
-print("sudden")
-show_results(mean_scores_sudden, std_scores_sudden)
-print("gradual")
-show_results(mean_scores_gradual, std_scores_gradual)
-print("incremental")
-show_results(mean_scores_incremental, std_scores_incremental)
+print("\n\nResults (sudden):")
+show_results(mean_sudden, std_sudden)
+print("\nResults (gradual):")
+show_results(mean_gradual, std_gradual)
+print("\nResults (incremental):")
+show_results(mean_incremental, std_incremental)
 
 
 
