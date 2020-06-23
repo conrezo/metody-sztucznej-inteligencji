@@ -157,7 +157,7 @@ def show_results(mean, std):
     for clf_id, clf_name in enumerate(clfs):
         #print(clf_id)
         #print(clf_name)
-        print("%s: %.3f (%.2f)" % (clf_name, mean[clf_id], std)) #według przykładu - (clf_name, mean[clf_id], std[clf_id]), wtedy błąd indeksu
+        print("%s: %.3f (%.2f)" % (clf_name, mean, std)) #według przykładu 4 - (clf_name, mean[clf_id], std[clf_id]), wtedy błąd indeksu
 
 print("\n\nResults (sudden):")
 show_results(mean_sudden, std_sudden)
