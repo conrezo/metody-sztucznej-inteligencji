@@ -57,50 +57,14 @@ stream_incremental = sl.streams.StreamGenerator(n_chunks=200,
 
 
 #evaluator initialization
-#czy powinniśmy to przepuścić przez wszystkie metryki i wszystkie clfs? mnóstwo przypadków...
-
 evaluator_sudden = sl.evaluators.TestThenTrain(metrics)
 evaluator_gradual = sl.evaluators.TestThenTrain(metrics)
 evaluator_incremental = sl.evaluators.TestThenTrain(metrics)
-
-""" próba podziału - ślepa uliczka?
-evaluator_sudden_UOB = sl.evaluators.TestThenTrain(metrics)
-evaluator_sudden_OOB = sl.evaluators.TestThenTrain(metrics)
-evaluator_sudden_OB = sl.evaluators.TestThenTrain(metrics)
-evaluator_sudden_SEA = sl.evaluators.TestThenTrain(metrics)
-
-evaluator_gradual_UOB = sl.evaluators.TestThenTrain(metrics)
-evaluator_gradual_OOB = sl.evaluators.TestThenTrain(metrics)
-evaluator_gradual_OB = sl.evaluators.TestThenTrain(metrics)
-evaluator_gradual_SEA = sl.evaluators.TestThenTrain(metrics)
-
-evaluator_incremental_UOB = sl.evaluators.TestThenTrain(metrics)
-evaluator_incremental_OOB = sl.evaluators.TestThenTrain(metrics)
-evaluator_incremental_OB = sl.evaluators.TestThenTrain(metrics)
-evaluator_incremental_SEA = sl.evaluators.TestThenTrain(metrics)
-"""
 
 #run evaluators
 evaluator_sudden.process(stream_sudden, clfs.values())
 evaluator_gradual.process(stream_gradual, clfs.values())
 evaluator_incremental.process(stream_incremental, clfs.values())
-
-""" 
-evaluator_sudden_UOB.process(stream_sudden, clfs.get('UOB'))
-evaluator_sudden_OOB.process(stream_sudden, clfs.get('OOB'))
-evaluator_sudden_OB.process(stream_sudden, clfs.get('OB'))
-evaluator_sudden_SEA.process(stream_sudden, clfs.get('SEA'))
-
-evaluator_gradual_UOB.process(stream_gradual, clfs.get('UOB'))
-evaluator_gradual_OOB.process(stream_gradual, clfs.get('OOB'))
-evaluator_gradual_OB.process(stream_gradual, clfs.get('OB'))
-evaluator_gradual_SEA.process(stream_gradual, clfs.get('SEA'))
-
-evaluator_incremental_UOB.process(stream_incremental, clfs.get('UOB')) 
-evaluator_incremental_OOB.process(stream_incremental, clfs.get('OOB')) 
-evaluator_incremental_OB.process(stream_incremental, clfs.get('OB')) 
-evaluator_incremental_SEA.process(stream_incremental, clfs.get('SEA')) 
-"""
 
 #print scores results
 #print(evaluator_sudden.scores)
@@ -115,7 +79,7 @@ save_to_file(evaluator_incremental, "incremental")
 
 
 
-################ DATA ANALYSIS ############################################################
+################ DATA ANALYSIS ######################################################
 
 #reading_result_from_file 
 scores_sudden = np.load('results_sudden.npy')
@@ -129,25 +93,50 @@ print("\nScores (incremental):\n", scores_incremental)
 
 
 #mean scores 
-mean_sudden = np.mean(scores_sudden) # jak dobrać axis?
+mean_sudden = np.mean(scores_sudden, axis=1) 
 print("\n\nMean (sudden):\n", mean_sudden)
 
-mean_gradual = np.mean(scores_gradual)
+mean_gradual = np.mean(scores_gradual, axis=1)
 print("\nMean (gradual):\n", mean_gradual)
 
-mean_incremental = np.mean(scores_incremental)
+mean_incremental = np.mean(scores_incremental, axis=1)
 print("\nMean (incremental):\n", mean_incremental)
 
 
 #std scores
-std_sudden = np.std(scores_sudden)
+std_sudden = np.std(scores_sudden, axis=1)
 print("\n\nStd (sudden):\n", std_sudden)
 
-std_gradual = np.std(scores_gradual)
+std_gradual = np.std(scores_gradual, axis=1)
 print("\nStd (gradual):\n", std_gradual)
 
-std_incremental = np.std(scores_incremental)
+std_incremental = np.std(scores_incremental, axis=1)
 print("\nStd (incremental):\n", std_incremental)
+
+
+#preparing mean and std to presenting results - is it necessary? 
+#create lists for  values
+mean_sudden_list = []
+mean_gradual_list = []
+mean_incremental_list = []
+
+std_sudden_list = []
+std_gradual_list = []
+std_incremental_list = []
+
+#count avg mean and avg std for specific clfs (one per row)
+def calculate_avg(type, newlist, eid: int):
+    avg=((type[eid][0]+type[eid][1])/2)
+    newlist.append(avg)
+    return avg
+
+for clf_id, clf_name in enumerate(clfs):
+    calculate_avg(mean_sudden, mean_sudden_list, clf_id)
+    calculate_avg(mean_gradual, mean_gradual_list, clf_id)
+    calculate_avg(mean_incremental, mean_incremental_list, clf_id)
+    calculate_avg(std_sudden, std_sudden_list, clf_id)
+    calculate_avg(std_gradual, std_gradual_list, clf_id)
+    calculate_avg(std_incremental, std_incremental_list, clf_id)
 
 
 
@@ -155,21 +144,18 @@ print("\nStd (incremental):\n", std_incremental)
 
 def show_results(mean, std): 
     for clf_id, clf_name in enumerate(clfs):
-        #print(clf_id)
-        #print(clf_name)
-        print("%s: %.3f (%.2f)" % (clf_name, mean, std)) #według przykładu 4 - (clf_name, mean[clf_id], std[clf_id]), wtedy błąd indeksu
+        print("%s: %.3f (%.2f)" % (clf_name, mean[clf_id], std[clf_id])) 
 
 print("\n\nResults (sudden):")
-show_results(mean_sudden, std_sudden)
+show_results(mean_sudden_list, std_sudden_list)
 print("\nResults (gradual):")
-show_results(mean_gradual, std_gradual)
+show_results(mean_gradual_list, std_gradual_list)
 print("\nResults (incremental):")
-show_results(mean_incremental, std_incremental)
-
+show_results(mean_incremental_list, std_incremental_list)
 
 
 """
-############# STATISTICAL ANALYSIS #################################################################
+############# STATISTICAL ANALYSIS ######################################################
 
 alfa = .05
 t_statistic = np.zeros((len(clfs), len(clfs)))
@@ -182,7 +168,7 @@ def get_t_statistics_p_value(scores):
             t_statistic[i, j], p_value[i, j] = ttest_ind(scores[i], scores[j])
     print("t-statistic:\n", t_statistic, "\n\np-value:\n", p_value)
 
-print("Scores sudden \n")
+print("\nScores sudden \n")
 get_t_statistics_p_value(scores_sudden)
 print("Scores gradual \n")
 get_t_statistics_p_value(scores_gradual)
@@ -218,5 +204,4 @@ stat_better = significance * advantage
 stat_better_table = tabulate(np.concatenate(
     (names_column, stat_better), axis=1), headers)
 print("Statistically significantly better:\n", stat_better_table)
-
 """
