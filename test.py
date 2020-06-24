@@ -15,14 +15,11 @@ clfs = {
     'SEA': SEA(base_estimator=GaussianNB(), n_estimators=5)
 }
 
-
 #metrics
-metrics = [sl.metrics.f1_score,
-           sl.metrics.geometric_mean_score_1]
+metrics = [sl.metrics.f1_score] #inne sl.metrics.geometric_mean_score_1
 
 #metrics names
-metrics_names = ["F1 score",
-                 "G-mean"]
+metrics_names = ["F1 score"] #inne: "G-mean"
 
 
 
@@ -62,12 +59,12 @@ evaluator_gradual = sl.evaluators.TestThenTrain(metrics)
 evaluator_incremental = sl.evaluators.TestThenTrain(metrics)
 
 #run evaluators
-evaluator_sudden.process(stream_sudden, clfs.values())
+evaluator_sudden.process(stream_sudden, clfs.values()) #TUTAJ (coś z values, może sie za dużo iteruje?)
 evaluator_gradual.process(stream_gradual, clfs.values())
 evaluator_incremental.process(stream_incremental, clfs.values())
 
 #print scores results
-#print(evaluator_sudden.scores)
+print(evaluator_sudden.scores)
 
 #saving results (evaluator scores) to file
 def save_to_file(evaluator, drift_name:str):
@@ -113,7 +110,7 @@ print("\nStd (gradual):\n", std_gradual)
 std_incremental = np.std(scores_incremental, axis=1)
 print("\nStd (incremental):\n", std_incremental)
 
-
+"""
 #preparing mean and std to presenting results - is it necessary? 
 #create lists for  values
 mean_sudden_list = []
@@ -137,7 +134,7 @@ for clf_id, clf_name in enumerate(clfs):
     calculate_avg(std_sudden, std_sudden_list, clf_id)
     calculate_avg(std_gradual, std_gradual_list, clf_id)
     calculate_avg(std_incremental, std_incremental_list, clf_id)
-
+"""
 
 
 ############## PRESENTING RESULTS ######################################################
@@ -147,14 +144,14 @@ def show_results(mean, std):
         print("%s: %.3f (%.2f)" % (clf_name, mean[clf_id], std[clf_id])) 
 
 print("\n\nResults (sudden):")
-show_results(mean_sudden_list, std_sudden_list)
+show_results(mean_sudden, std_sudden)
 print("\nResults (gradual):")
-show_results(mean_gradual_list, std_gradual_list)
+show_results(mean_gradual, std_gradual)
 print("\nResults (incremental):")
-show_results(mean_incremental_list, std_incremental_list)
+show_results(mean_incremental, std_incremental)
 
 
-"""
+
 ############# STATISTICAL ANALYSIS ######################################################
 
 alfa = .05
@@ -166,22 +163,22 @@ def get_t_statistics_p_value(scores):
     for i in range(len(clfs)):
         for j in range(len(clfs)):
             t_statistic[i, j], p_value[i, j] = ttest_ind(scores[i], scores[j])
-    print("t-statistic:\n", t_statistic, "\n\np-value:\n", p_value)
+    print("\nt-statistic:\n", t_statistic, "\n\np-value:\n", p_value)
 
-print("\nScores sudden \n")
+print("\n\nScores (sudden):")
 get_t_statistics_p_value(scores_sudden)
-print("Scores gradual \n")
+print("\n\nScores (gradual):")
 get_t_statistics_p_value(scores_gradual)
-print("Scores incremental \n")
+print("\n\nScores (incremental):")
 get_t_statistics_p_value(scores_incremental)
 
-headers = ["GNB", "kNN", "CART"]
-names_column = np.array([["GNB"], ["kNN"], ["CART"]])
+headers = ["UOB", "OOB", "OB", "SEA"]
+names_column = np.array([["UOB"], ["OOB"], ["OB"], ["SEA"]])
 t_statistic_table = np.concatenate((names_column, t_statistic), axis=1)
 t_statistic_table = tabulate(t_statistic_table, headers, floatfmt=".2f")
 p_value_table = np.concatenate((names_column, p_value), axis=1)
 p_value_table = tabulate(p_value_table, headers, floatfmt=".2f")
-print("t-statistic:\n", t_statistic_table, "\n\np-value:\n", p_value_table)
+print("\n\n\nT-statistic and p-value tables:\n", "\nt-statistic:\n", t_statistic_table, "\n\np-value:\n", p_value_table)
 
 
 #advantage matrics
@@ -189,7 +186,7 @@ advantage = np.zeros((len(clfs), len(clfs)))
 advantage[t_statistic > 0] = 1
 advantage_table = tabulate(np.concatenate(
     (names_column, advantage), axis=1), headers)
-print("Advantage:\n", advantage_table)
+print("\n\n\nAdvantage:\n\n", advantage_table)
 
 
 #significance table
@@ -197,11 +194,10 @@ significance = np.zeros((len(clfs), len(clfs)))
 significance[p_value <= alfa] = 1
 significance_table = tabulate(np.concatenate(
     (names_column, significance), axis=1), headers)
-print("Statistical significance (alpha = 0.05):\n", significance_table)
+print("\n\nStatistical significance (alpha = 0.05):\n\n", significance_table)
 
 #final results
 stat_better = significance * advantage
 stat_better_table = tabulate(np.concatenate(
     (names_column, stat_better), axis=1), headers)
-print("Statistically significantly better:\n", stat_better_table)
-"""
+print("\n\nStatistically significantly better:\n\n", stat_better_table)
