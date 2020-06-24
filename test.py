@@ -32,7 +32,7 @@ stream_sudden = sl.streams.StreamGenerator(n_chunks=200,
                                             n_classes=2,
                                             n_drifts=1,
                                             n_features=10,
-                                            random_state=1410)
+                                            random_state=10)
 
 #generatre gradual drift
 stream_gradual = sl.streams.StreamGenerator(n_chunks=200,
@@ -40,7 +40,7 @@ stream_gradual = sl.streams.StreamGenerator(n_chunks=200,
                                             n_classes=2,
                                             n_drifts=1,
                                             n_features=10,
-                                            random_state=1410,
+                                            random_state=10,
                                             concept_sigmoid_spacing=5)
 
 #generate incremental drift
@@ -49,7 +49,7 @@ stream_incremental = sl.streams.StreamGenerator(n_chunks=200,
                                                 n_classes=2,
                                                 n_drifts=1,
                                                 n_features=10,
-                                                random_state=1410,
+                                                random_state=10,
                                                 concept_sigmoid_spacing=5,
                                                 incremental=True)
 
