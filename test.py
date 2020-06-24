@@ -126,9 +126,9 @@ std_incremental_list = []
 
 #count avg mean and avg std for specific clfs (one per row)
 def calculate_avg(type, newlist, eid: int):
-    avg=((type[eid][0]+type[eid][1])/2)
+    data = [[type[eid][0], type[eid][1]]]
+    avg=np.mean(data)
     newlist.append(avg)
-    return avg
 
 for clf_id, clf_name in enumerate(clfs):
     calculate_avg(mean_sudden, mean_sudden_list, clf_id)
