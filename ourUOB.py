@@ -6,7 +6,7 @@ from sklearn.ensemble import BaseEnsemble
 from sklearn.utils.validation import check_array, check_is_fitted, check_X_y
 
 
-class UOB(BaseEnsemble, ClassifierMixin):
+class ourUOB(BaseEnsemble, ClassifierMixin):
     """
     Undersampling-Based Online Bagging.
     //time_decay_factor -> predefined factor for support data update, recommended value = 0.9
