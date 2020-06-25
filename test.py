@@ -98,7 +98,6 @@ for random_state in random_sate_list:
         # Incremental:
         arr = np.append(full_scores_incremental, scores_incremental, axis=0)
         full_scores_incremental = arr
-        i = 0
 
 
 #saving results (evaluator scores) to file
@@ -122,9 +121,28 @@ scores_incremental = np.load('results_incremental.npy', allow_pickle=True)
 print("\nScores (incremental):\n", scores_incremental)
 
 
-#mean scores 
-mean_sudden = np.mean(scores_sudden, axis=1) 
+#mean scores
+def mean_calculate(mean):
+    sudden_clf_mean = []
+    for i in range(0, len(mean) - 1, 4):
+        if i == 0:
+            sudden_clf_mean = mean[0]
+            continue
+        arr = np.append(sudden_clf_mean, mean[i], axis=0)
+        sudden_clf_mean = arr
+    mean_sudden = np.mean(sudden_clf_mean)
+    return sudden_clf_mean, mean_sudden
+
+
+mean_sudden_array = np.mean(scores_sudden, axis=1)
+sudden_mean_UOB, mean_sudden = mean_calculate(mean_sudden_array)
+print(mean_sudden_array)
+print("sudden UOB:")
+print(sudden_mean_UOB)
+
+
 print("\n\nMean (sudden):\n", mean_sudden)
+
 
 mean_gradual = np.mean(scores_gradual, axis=1)
 print("\nMean (gradual):\n", mean_gradual)
@@ -147,9 +165,10 @@ print("\nStd (incremental):\n", std_incremental)
 
 ############## PRESENTING RESULTS ######################################################
 
-def show_results(mean, std): 
+
+def show_results(mean, std):
     for clf_id, clf_name in enumerate(clfs):
-        print("%s: %.3f (%.2f)" % (clf_name, mean[clf_id], std[clf_id])) 
+        print("%s: %.3f (%.2f)" % (clf_name, mean[clf_id], std[clf_id]))
 
 print("\n\nResults (sudden):")
 show_results(mean_sudden, std_sudden)
