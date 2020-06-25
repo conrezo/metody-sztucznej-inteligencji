@@ -23,59 +23,74 @@ metrics_names = ["F1 score"]
 #other: "G-mean"
 
 
-
 ########### GENERATING STREAMS #######################################################
+n_chunks_value = 10 #todo zminieć  na 200
 
-##generate sudden drift
-stream_sudden = sl.streams.StreamGenerator(n_chunks=200,
-                                            chunk_size=500,
-                                            n_classes=2,
-                                            n_drifts=1,
-                                            n_features=10,
-                                            random_state=10)
+full_scores_sudden = [[[None for y in range(1)] for x in range(n_chunks_value-1)]]
+full_scores_gradual = [[[None for y in range(1)] for x in range(n_chunks_value-1)]]
+full_scores_incremental = [[[None for y in range(1)] for x in range(n_chunks_value-1)]]
 
-#generatre gradual drift
-stream_gradual = sl.streams.StreamGenerator(n_chunks=200,
-                                            chunk_size=500,
-                                            n_classes=2,
-                                            n_drifts=1,
-                                            n_features=10,
-                                            random_state=10,
-                                            concept_sigmoid_spacing=5)
 
-#generate incremental drift
-stream_incremental = sl.streams.StreamGenerator(n_chunks=200,
+def generating_streams(random_state_value):
+    #generate sudden drift
+    stream_sudden = sl.streams.StreamGenerator(n_chunks=n_chunks_value,
+                                               chunk_size=500,
+                                               n_classes=2,
+                                               n_drifts=1,
+                                               n_features=10,
+                                               random_state=random_state_value)
+
+    #generatre gradual drift
+    stream_gradual = sl.streams.StreamGenerator(n_chunks=n_chunks_value,
                                                 chunk_size=500,
                                                 n_classes=2,
                                                 n_drifts=1,
                                                 n_features=10,
-                                                random_state=10,
-                                                concept_sigmoid_spacing=5,
-                                                incremental=True)
+                                                random_state=random_state_value,
+                                                concept_sigmoid_spacing=5)
+
+    #generate incremental drift
+    stream_incremental = sl.streams.StreamGenerator(n_chunks=n_chunks_value,
+                                                    chunk_size=500,
+                                                    n_classes=2,
+                                                    n_drifts=1,
+                                                    n_features=10,
+                                                    random_state=random_state_value,
+                                                    concept_sigmoid_spacing=5,
+                                                    incremental=True)
+
+    #evaluator initialization
+    evaluator_sudden = sl.evaluators.TestThenTrain(metrics)
+    evaluator_gradual = sl.evaluators.TestThenTrain(metrics)
+    evaluator_incremental = sl.evaluators.TestThenTrain(metrics)
+
+    #run evaluators
+    evaluator_sudden.process(stream_sudden, clfs.values())
+    evaluator_gradual.process(stream_gradual, clfs.values())
+    evaluator_incremental.process(stream_incremental, clfs.values())
+
+    return evaluator_gradual.scores, evaluator_sudden.scores, evaluator_incremental.scores
 
 
-#evaluator initialization
-evaluator_sudden = sl.evaluators.TestThenTrain(metrics)
-evaluator_gradual = sl.evaluators.TestThenTrain(metrics)
-evaluator_incremental = sl.evaluators.TestThenTrain(metrics)
+random_sate_list = [10, 1410, 21, 653, 1234, 190, 859, 329, 2137, 929]
 
-#run evaluators
-evaluator_sudden.process(stream_sudden, clfs.values()) 
-evaluator_gradual.process(stream_gradual, clfs.values())
-evaluator_incremental.process(stream_incremental, clfs.values())
+for random_state in random_sate_list:
+    scores = generating_streams(random_state)
+    print(scores)
+    arr = np.append(full_scores_gradual, scores, axis=0)
+    full_scores_gradual = arr
 
-#print scores results
-print(evaluator_sudden.scores)
+print("####################")
+print(full_scores_gradual)
+
 
 #saving results (evaluator scores) to file
-def save_to_file(evaluator, drift_name:str):
-    np.save('results_' + drift_name, evaluator.scores)
+def save_to_file(full_scores, drift_name: str):
+    np.save('results_' + drift_name, full_scores)
 
-save_to_file(evaluator_sudden, "sudden")
-save_to_file(evaluator_gradual, "gradual")
-save_to_file(evaluator_incremental, "incremental")
-
-
+save_to_file(full_scores_sudden, "sudden")
+save_to_file(full_scores_gradual, "gradual")
+save_to_file(full_scores_incremental, "incremental")
 
 ################ DATA ANALYSIS ######################################################
 
