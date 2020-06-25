@@ -24,7 +24,7 @@ metrics_names = ["F1 score"]
 
 
 ########### GENERATING STREAMS #######################################################
-n_chunks_value = 10 #todo zminieć  na 200
+n_chunks_value = 50
 
 
 def generating_streams(random_state_value):
