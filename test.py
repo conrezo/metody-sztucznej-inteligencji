@@ -1,9 +1,7 @@
-from strlearn.ensembles import OOB, UOB, SEA, OnlineBagging
-from sklearn.naive_bayes import GaussianNB
 import numpy as np
 import strlearn as sl
-from sklearn.neural_network import MLPClassifier
-import matplotlib.pyplot as plt
+from strlearn.ensembles import OOB, UOB, SEA, OnlineBagging
+from sklearn.naive_bayes import GaussianNB
 from scipy.stats import ttest_ind
 from tabulate import tabulate
 
@@ -17,10 +15,12 @@ clfs = {
 }
 
 #metrics
-metrics = [sl.metrics.f1_score] #other: sl.metrics.geometric_mean_score_1
+metrics = [sl.metrics.f1_score] 
+#other: sl.metrics.geometric_mean_score_1
 
 #metrics names
-metrics_names = ["F1 score"] #other: "G-mean"
+metrics_names = ["F1 score"] 
+#other: "G-mean"
 
 
 
@@ -60,7 +60,7 @@ evaluator_gradual = sl.evaluators.TestThenTrain(metrics)
 evaluator_incremental = sl.evaluators.TestThenTrain(metrics)
 
 #run evaluators
-evaluator_sudden.process(stream_sudden, clfs.values()) #TUTAJ (coś z values, może sie za dużo iteruje?)
+evaluator_sudden.process(stream_sudden, clfs.values()) 
 evaluator_gradual.process(stream_gradual, clfs.values())
 evaluator_incremental.process(stream_incremental, clfs.values())
 
