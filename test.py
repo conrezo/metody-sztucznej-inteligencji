@@ -78,7 +78,6 @@ full_scores_gradual = []
 full_scores_incremental = []
 
 
-
 i = 0
 for random_state in random_sate_list:
     scores_sudden, scores_gradual, scores_incremental = generating_streams(random_state)
