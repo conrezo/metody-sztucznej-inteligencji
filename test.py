@@ -1,9 +1,7 @@
-from strlearn.ensembles import OOB, UOB, SEA, OnlineBagging
-from sklearn.naive_bayes import GaussianNB
 import numpy as np
 import strlearn as sl
-from sklearn.neural_network import MLPClassifier
-import matplotlib.pyplot as plt
+from strlearn.ensembles import OOB, UOB, SEA, OnlineBagging
+from sklearn.naive_bayes import GaussianNB
 from scipy.stats import ttest_ind
 from tabulate import tabulate
 
@@ -17,107 +15,173 @@ clfs = {
 }
 
 #metrics
-metrics = [sl.metrics.f1_score] #other: sl.metrics.geometric_mean_score_1
+metrics = [sl.metrics.f1_score] 
+#other: sl.metrics.geometric_mean_score_1
 
 #metrics names
-metrics_names = ["F1 score"] #other: "G-mean"
-
+metrics_names = ["F1 score"] 
+#other: "G-mean"
 
 
 ########### GENERATING STREAMS #######################################################
+n_chunks_value = 50
 
-##generate sudden drift
-stream_sudden = sl.streams.StreamGenerator(n_chunks=200,
-                                            chunk_size=500,
-                                            n_classes=2,
-                                            n_drifts=1,
-                                            n_features=10,
-                                            random_state=10)
 
-#generatre gradual drift
-stream_gradual = sl.streams.StreamGenerator(n_chunks=200,
-                                            chunk_size=500,
-                                            n_classes=2,
-                                            n_drifts=1,
-                                            n_features=10,
-                                            random_state=10,
-                                            concept_sigmoid_spacing=5)
+def generating_streams(random_state_value):
+    #generate sudden drift
+    stream_sudden = sl.streams.StreamGenerator(n_chunks=n_chunks_value,
+                                               chunk_size=500,
+                                               n_classes=2,
+                                               n_drifts=1,
+                                               n_features=10,
+                                               random_state=random_state_value)
+    evaluator_sudden = sl.evaluators.TestThenTrain(metrics)
+    evaluator_sudden.process(stream_sudden, clfs.values())
 
-#generate incremental drift
-stream_incremental = sl.streams.StreamGenerator(n_chunks=200,
+    #generatre gradual drift
+    stream_gradual = sl.streams.StreamGenerator(n_chunks=n_chunks_value,
                                                 chunk_size=500,
                                                 n_classes=2,
                                                 n_drifts=1,
                                                 n_features=10,
-                                                random_state=10,
-                                                concept_sigmoid_spacing=5,
-                                                incremental=True)
+                                                random_state=random_state_value,
+                                                concept_sigmoid_spacing=5)
+    evaluator_gradual = sl.evaluators.TestThenTrain(metrics)
+    evaluator_gradual.process(stream_gradual, clfs.values())
+
+    #generate incremental drift
+    stream_incremental = sl.streams.StreamGenerator(n_chunks=n_chunks_value,
+                                                    chunk_size=500,
+                                                    n_classes=2,
+                                                    n_drifts=1,
+                                                    n_features=10,
+                                                    random_state=random_state_value,
+                                                    concept_sigmoid_spacing=5,
+                                                    incremental=True)
+
+    evaluator_incremental = sl.evaluators.TestThenTrain(metrics)
+    evaluator_incremental.process(stream_incremental, clfs.values())
+    #evaluator initialization
+
+    #run evaluators
+
+    return evaluator_sudden.scores, evaluator_gradual.scores,  evaluator_incremental.scores
 
 
-#evaluator initialization
-evaluator_sudden = sl.evaluators.TestThenTrain(metrics)
-evaluator_gradual = sl.evaluators.TestThenTrain(metrics)
-evaluator_incremental = sl.evaluators.TestThenTrain(metrics)
+random_sate_list = [10, 1410, 21, 653, 1234, 190, 859, 329, 2137, 929]
+#full_scores_sudden = [[[None for y in range(1)] for x in range(n_chunks_value-1)]]
+#full_scores_gradual = [[[None for y in range(1)] for x in range(n_chunks_value-1)]]
+#full_scores_incremental = [[[None for y in range(1)] for x in range(n_chunks_value-1)]]
 
-#run evaluators
-evaluator_sudden.process(stream_sudden, clfs.values()) #TUTAJ (coś z values, może sie za dużo iteruje?)
-evaluator_gradual.process(stream_gradual, clfs.values())
-evaluator_incremental.process(stream_incremental, clfs.values())
+full_scores_sudden = []
+full_scores_gradual = []
+full_scores_incremental = []
 
-#print scores results
-print(evaluator_sudden.scores)
+
+i = 0
+for random_state in random_sate_list:
+    scores_sudden, scores_gradual, scores_incremental = generating_streams(random_state)
+    if i == 0:
+        full_scores_sudden = scores_sudden
+        full_scores_gradual = scores_gradual
+        full_scores_incremental = scores_incremental
+        i = 1
+    else:
+        # Sudden:
+        arr = np.append(full_scores_sudden, scores_sudden, axis=0)
+        full_scores_sudden = arr
+
+        # Gradual:
+        arr = np.append(full_scores_gradual, scores_gradual, axis=0)
+        full_scores_gradual = arr
+
+        # Incremental:
+        arr = np.append(full_scores_incremental, scores_incremental, axis=0)
+        full_scores_incremental = arr
+
 
 #saving results (evaluator scores) to file
-def save_to_file(evaluator, drift_name:str):
-    np.save('results_' + drift_name, evaluator.scores)
+def save_to_file(full_scores, drift_name: str):
+    np.save('results_' + drift_name, full_scores)
 
-save_to_file(evaluator_sudden, "sudden")
-save_to_file(evaluator_gradual, "gradual")
-save_to_file(evaluator_incremental, "incremental")
-
-
+save_to_file(full_scores_sudden, "sudden")
+save_to_file(full_scores_gradual, "gradual")
+save_to_file(full_scores_incremental, "incremental")
 
 ################ DATA ANALYSIS ######################################################
 
 #reading_result_from_file 
-scores_sudden = np.load('results_sudden.npy')
+scores_sudden = np.load('results_sudden.npy', allow_pickle=True)
 print("\nScores (sudden):\n", scores_sudden)
 
-scores_gradual = np.load('results_gradual.npy')
+scores_gradual = np.load('results_gradual.npy', allow_pickle=True)
 print("\nScores (gradual):\n", scores_gradual)
 
-scores_incremental = np.load('results_incremental.npy')
+scores_incremental = np.load('results_incremental.npy', allow_pickle=True)
 print("\nScores (incremental):\n", scores_incremental)
 
 
-#mean scores 
-mean_sudden = np.mean(scores_sudden, axis=1) 
+#mean scores
+#todo zmienic 4 na len(clf)
+def mean_calculate(mean):
+    means_list = []
+    for j in range(0, 4):
+        sudden_clf_mean = []
+        for i in range(j, len(mean) - 1, 4):
+            arr = np.append(sudden_clf_mean, mean[i], axis=0)
+            sudden_clf_mean = arr
+        means = np.mean(sudden_clf_mean)
+        means_list.append(means)
+    return means_list
+
+
+mean_sudden_array = np.mean(scores_sudden, axis=1)
+mean_sudden = mean_calculate(mean_sudden_array)
 print("\n\nMean (sudden):\n", mean_sudden)
 
-mean_gradual = np.mean(scores_gradual, axis=1)
+mean_gradual_array = np.mean(scores_gradual, axis=1)
+mean_gradual = mean_calculate(mean_gradual_array)
 print("\nMean (gradual):\n", mean_gradual)
 
-mean_incremental = np.mean(scores_incremental, axis=1)
+mean_incremental_array = np.mean(scores_incremental, axis=1)
+mean_incremental = mean_calculate(mean_gradual_array)
 print("\nMean (incremental):\n", mean_incremental)
 
 
 #std scores
-std_sudden = np.std(scores_sudden, axis=1)
+#todo zmienic 4 na len(clf)
+def std_calculate(std):
+    std_list = []
+    for j in range(0, 4):
+        std_clf = []
+        for i in range(j, len(std) - 1, 4):
+            arr = np.append(std_clf, std[i], axis=0)
+            std_clf = arr
+        stds = np.std(std_clf)
+        std_list.append(stds)
+    return std_list
+
+
+std_sudden_array = np.std(scores_sudden, axis=1)
+std_sudden = std_calculate(std_sudden_array)
 print("\n\nStd (sudden):\n", std_sudden)
 
-std_gradual = np.std(scores_gradual, axis=1)
+std_gradual_array = np.std(scores_gradual, axis=1)
+std_gradual = std_calculate(std_gradual_array)
 print("\nStd (gradual):\n", std_gradual)
 
-std_incremental = np.std(scores_incremental, axis=1)
+std_incremental_array = np.std(scores_incremental, axis=1)
+std_incremental = std_calculate(std_incremental_array)
 print("\nStd (incremental):\n", std_incremental)
 
 
 
 ############## PRESENTING RESULTS ######################################################
 
-def show_results(mean, std): 
+
+def show_results(mean, std):
     for clf_id, clf_name in enumerate(clfs):
-        print("%s: %.3f (%.2f)" % (clf_name, mean[clf_id], std[clf_id])) 
+        print("%s: %.3f (%.2f)" % (clf_name, mean[clf_id], std[clf_id]))
 
 print("\n\nResults (sudden):")
 show_results(mean_sudden, std_sudden)
