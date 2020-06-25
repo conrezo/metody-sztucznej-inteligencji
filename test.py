@@ -9,8 +9,8 @@ from ourUOB import ourUOB
 
 #classificators
 clfs = {   
-    'UOB': UOB(base_estimator=GaussianNB(), n_estimators=5),
     'ourUOB': ourUOB(base_estimator=GaussianNB(), n_estimators=5),
+    'UOB': UOB(base_estimator=GaussianNB(), n_estimators=5),
     'OOB': OOB(base_estimator=GaussianNB(), n_estimators=5),
     'OB': OnlineBagging(base_estimator=GaussianNB(), n_estimators=5),
     'SEA': SEA(base_estimator=GaussianNB(), n_estimators=5)
@@ -211,8 +211,8 @@ def create_result_tables(scores):
             t_statistic[i, j], p_value[i, j] = ttest_ind(scores[i], scores[j])
     print("\nt-statistic:\n", t_statistic, "\n\np-value:\n", p_value)
 
-    headers = ["UOB", "ourUOB", "OOB", "OB", "SEA"]
-    names_column = np.array([["UOB"], ["ourUOB"], ["OOB"], ["OB"], ["SEA"]])
+    headers = ["ourUOB", "UOB", "OOB", "OB", "SEA"]
+    names_column = np.array([["ourUOB"], ["UOB"], ["OOB"], ["OB"], ["SEA"]])
     t_statistic_table = np.concatenate((names_column, t_statistic), axis=1)
     t_statistic_table = tabulate(t_statistic_table, headers, floatfmt=".2f")
     p_value_table = np.concatenate((names_column, p_value), axis=1)
