@@ -122,43 +122,56 @@ print("\nScores (incremental):\n", scores_incremental)
 
 
 #mean scores
+#todo zmienic 4 na len(clf)
 def mean_calculate(mean):
-    sudden_clf_mean = []
-    for i in range(0, len(mean) - 1, 4):
-        if i == 0:
-            sudden_clf_mean = mean[0]
-            continue
-        arr = np.append(sudden_clf_mean, mean[i], axis=0)
-        sudden_clf_mean = arr
-    mean_sudden = np.mean(sudden_clf_mean)
-    return sudden_clf_mean, mean_sudden
+    means_list = []
+    for j in range(0, 4):
+        sudden_clf_mean = []
+        for i in range(j, len(mean) - 1, 4):
+            arr = np.append(sudden_clf_mean, mean[i], axis=0)
+            sudden_clf_mean = arr
+        means = np.mean(sudden_clf_mean)
+        means_list.append(means)
+    return means_list
 
 
 mean_sudden_array = np.mean(scores_sudden, axis=1)
-sudden_mean_UOB, mean_sudden = mean_calculate(mean_sudden_array)
-print(mean_sudden_array)
-print("sudden UOB:")
-print(sudden_mean_UOB)
-
-
+mean_sudden = mean_calculate(mean_sudden_array)
 print("\n\nMean (sudden):\n", mean_sudden)
 
-
-mean_gradual = np.mean(scores_gradual, axis=1)
+mean_gradual_array = np.mean(scores_gradual, axis=1)
+mean_gradual = mean_calculate(mean_gradual_array)
 print("\nMean (gradual):\n", mean_gradual)
 
-mean_incremental = np.mean(scores_incremental, axis=1)
+mean_incremental_array = np.mean(scores_incremental, axis=1)
+mean_incremental = mean_calculate(mean_gradual_array)
 print("\nMean (incremental):\n", mean_incremental)
 
 
 #std scores
-std_sudden = np.std(scores_sudden, axis=1)
+#todo zmienic 4 na len(clf)
+def std_calculate(std):
+    std_list = []
+    for j in range(0, 4):
+        std_clf = []
+        for i in range(j, len(std) - 1, 4):
+            arr = np.append(std_clf, std[i], axis=0)
+            std_clf = arr
+        stds = np.std(std_clf)
+        std_list.append(stds)
+    return std_list
+
+
+std_sudden_array = np.std(scores_sudden, axis=1)
+std_sudden = std_calculate(std_sudden_array)
 print("\n\nStd (sudden):\n", std_sudden)
 
-std_gradual = np.std(scores_gradual, axis=1)
+std_gradual_array = np.std(scores_gradual, axis=1)
+std_gradual = std_calculate(std_gradual_array)
 print("\nStd (gradual):\n", std_gradual)
 
-std_incremental = np.std(scores_incremental, axis=1)
+std_incremental_array = np.std(scores_incremental, axis=1)
+std_incremental = std_calculate(std_incremental_array)
 print("\nStd (incremental):\n", std_incremental)
 
 
