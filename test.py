@@ -7,6 +7,8 @@ from tabulate import tabulate
 from ourUOB import ourUOB
 
 
+############## CLASSIFICATORS AND METRICS #############################################
+
 #classificators
 clfs = {   
     'UOB': UOB(base_estimator=GaussianNB(), n_estimators=5),
@@ -18,17 +20,16 @@ clfs = {
 
 
 #metrics names
-metrics_names = ["G-mean"] 
-#other:  F1 score
-
+metrics_names = ["F1 score"] 
+#other:  G-mean
 
 #metrics
-metrics = [sl.metrics.geometric_mean_score_1] 
-#other: ssl.metrics.f1_score
+metrics = [sl.metrics.f1_score] 
+#other: sl.metrics.geometric_mean_score_1
 
 
 
-########### GENERATING STREAMS #######################################################
+########### GENERATING STREAMS ########################################################
 
 n_chunks_value = 200
 
@@ -112,6 +113,7 @@ save_to_file(full_scores_incremental, "incremental")
 
 
 
+
 ################ DATA ANALYSIS ######################################################
 
 #reading_result_from_file 
@@ -137,7 +139,7 @@ def mean_calculate(mean):
         means_list.append(means)
     return means_list
 
-
+#showing mean
 mean_sudden_array = np.mean(scores_sudden, axis=1)
 mean_sudden = mean_calculate(mean_sudden_array)
 print("\n\nMean (sudden):\n", mean_sudden)
@@ -163,7 +165,7 @@ def std_calculate(std):
         std_list.append(stds)
     return std_list
 
-
+#showing std
 std_sudden_array = np.std(scores_sudden, axis=1)
 std_sudden = std_calculate(std_sudden_array)
 print("\n\nStd (sudden):\n", std_sudden)
@@ -178,8 +180,8 @@ print("\nStd (incremental):\n", std_incremental)
 
 
 
-############## PRESENTING RESULTS ######################################################
 
+############## PRESENTING RESULTS ######################################################
 
 def show_results(mean, std):
     for clf_id, clf_name in enumerate(clfs):
@@ -196,11 +198,15 @@ show_results(mean_incremental, std_incremental)
 
 ############# STATISTICAL ANALYSIS ######################################################
 
+#defining alfa value
 alfa = .05
+
+#setting up t_statistic and p_value array filled up with zeros
 t_statistic = np.zeros((len(clfs), len(clfs)))
 p_value = np.zeros((len(clfs), len(clfs)))
 
 
+#creating results tabels
 def create_result_tables(scores):
 
     #creating t_statistic and p_value matrices
@@ -238,7 +244,8 @@ def create_result_tables(scores):
     print("\n\nStatistically significantly better:\n\n", stat_better_table)
 
 
-#printing results
+
+#presenting final results
 print("\n\n==============================================================================================")
 print("Results for sudden drift:")
 create_result_tables(scores_sudden)
