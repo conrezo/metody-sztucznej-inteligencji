@@ -20,12 +20,12 @@ clfs = {
 
 
 #metrics names
-metrics_names = ["F1 score"] 
-#other:  G-mean
+metrics_names = ["G-mean"] 
+#other:  F1 score
 
 #metrics
-metrics = [sl.metrics.f1_score] 
-#other: sl.metrics.geometric_mean_score_1
+metrics = [sl.metrics.geometric_mean_score_1] 
+#other: sl.metrics.f1_score
 
 
 
@@ -40,6 +40,7 @@ def generating_streams(random_state_value):
                                                n_classes=2,
                                                n_drifts=1,
                                                n_features=10,
+                                               weights=[0.2, 0.8],
                                                random_state=random_state_value)
 
     #generatre gradual drift
@@ -48,6 +49,7 @@ def generating_streams(random_state_value):
                                                 n_classes=2,
                                                 n_drifts=1,
                                                 n_features=10,
+                                                weights=[0.2, 0.8],
                                                 random_state=random_state_value,
                                                 concept_sigmoid_spacing=5)
 
@@ -57,6 +59,7 @@ def generating_streams(random_state_value):
                                                     n_classes=2,
                                                     n_drifts=1,
                                                     n_features=10,
+                                                    weights=[0.2, 0.8],
                                                     random_state=random_state_value,
                                                     concept_sigmoid_spacing=5,
                                                     incremental=True)
