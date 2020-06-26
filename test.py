@@ -9,8 +9,8 @@ from ourUOB import ourUOB
 
 #classificators
 clfs = {   
-    'ourUOB': ourUOB(base_estimator=GaussianNB(), n_estimators=5),
     'UOB': UOB(base_estimator=GaussianNB(), n_estimators=5),
+    'ourUOB': ourUOB(base_estimator=GaussianNB(), n_estimators=5),
     'OOB': OOB(base_estimator=GaussianNB(), n_estimators=5),
     'OB': OnlineBagging(base_estimator=GaussianNB(), n_estimators=5),
     'SEA': SEA(base_estimator=GaussianNB(), n_estimators=5)
@@ -18,13 +18,13 @@ clfs = {
 
 
 #metrics names
-metrics_names = ["F1 score"] 
-#other: "G-mean"
+metrics_names = ["G-mean"] 
+#other:  F1 score
 
 
 #metrics
-metrics = [sl.metrics.f1_score] 
-#other: sl.metrics.geometric_mean_score_1
+metrics = [sl.metrics.geometric_mean_score_1] 
+#other: ssl.metrics.f1_score
 
 
 
@@ -126,7 +126,6 @@ print("\n\nScores (incremental):\n", scores_incremental)
 
 
 #mean scores
-#todo zmienic 4 na len(clfs)
 def mean_calculate(mean):
     means_list = []
     for j in range(0, len(clfs)):
@@ -153,7 +152,6 @@ print("\nMean (incremental):\n", mean_incremental)
 
 
 #std scores
-#todo zmienic 4 na len(clf)
 def std_calculate(std):
     std_list = []
     for j in range(0, len(clfs)):
@@ -211,8 +209,8 @@ def create_result_tables(scores):
             t_statistic[i, j], p_value[i, j] = ttest_ind(scores[i], scores[j])
     print("\nt-statistic:\n", t_statistic, "\n\np-value:\n", p_value)
 
-    headers = ["ourUOB", "UOB", "OOB", "OB", "SEA"]
-    names_column = np.array([["ourUOB"], ["UOB"], ["OOB"], ["OB"], ["SEA"]])
+    headers = ["UOB", "ourUOB", "OOB", "OB", "SEA"]
+    names_column = np.array([["UOB"], ["ourUOB"], ["OOB"], ["OB"], ["SEA"]])
     t_statistic_table = np.concatenate((names_column, t_statistic), axis=1)
     t_statistic_table = tabulate(t_statistic_table, headers, floatfmt=".2f")
     p_value_table = np.concatenate((names_column, p_value), axis=1)
